@@ -60,7 +60,7 @@ describe('Blockchain', () => {
 				// Assert
 				it('returns false', () => {
 					// Arrange
-					blockchain[2].data = 'some-bad-and-evil-data';
+					blockchain.chain[2].data = 'some-bad-and-evil-data';
 
 					// Act/Assert
 					expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
