@@ -76,17 +76,33 @@ describe('Block', () => {
 			// Assert
 			expect(minedBlock.hash.substring(0, minedBlock.difficulty)).toEqual('0'.repeat(minedBlock.difficulty));
 		});
+
+		it('adjusts the difficulty', () => {
+			// Arrange
+			const possibleResults = [lastBlock.difficulty + 1, lastBlock.difficulty - 1];
+
+			// Act/Assert
+			expect(possibleResults.includes(minedBlock.difficulty)).toBe(true);
+		});
 	});
 
 	describe('adjustDifficulty()', () => {
 		it('raises the difficulty for a quickly mined block', () => {
 			// Act/Assert
-			expect(Block.adjustDifficulty({ originalBlock: block, timestamp: block.timestamp + MINE_RATE - 100 })).toEqual(block.difficulty + 1);
+			expect(Block.adjustDifficulty(block, block.timestamp + MINE_RATE - 100)).toEqual(block.difficulty + 1);
 		});
 
 		it('lowers the difficulty for a slowly mined block', () => {
 			// Act/Assert
-			expect(Block.adjustDifficulty({ originalBlock: block, timestamp: block.timestamp + MINE_RATE + 100 })).toEqual(block.difficulty - 1);
+			expect(Block.adjustDifficulty(block, block.timestamp + MINE_RATE + 100)).toEqual(block.difficulty - 1);
+		});
+
+		it('has a lower limit of 1', () => {
+			// Arrange
+			block.difficulty = -1;
+
+			// Act/Assert
+			expect(Block.adjustDifficulty(block)).toBe(1);
 		});
 	});
 });
