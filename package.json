@@ -16,5 +16,8 @@
 	},
 	"jest": {
 		"verbose": true
+	},
+	"dependencies": {
+		"hex-to-binary": "^1.0.1"
 	}
 }
