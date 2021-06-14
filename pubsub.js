@@ -29,8 +29,16 @@ class PubSub {
 		});
 	}
 
+	publish(channel, message) {
+		this.subscriber.unsubscribe(channel, () => {
+			this.publisher.publish(channel, message, () => {
+				this.subscriber.subscribe(CHANNELS.BLOCKCHAIN);
+			});
+		});
+	}
+
 	broadcastChain() {
-		this.publisher.publish(CHANNELS.BLOCKCHAIN, JSON.stringify(this.blockchain.chain));
+		this.publish(CHANNELS.BLOCKCHAIN, JSON.stringify(this.blockchain.chain));
 	}
 }
 
