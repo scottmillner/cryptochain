@@ -7,6 +7,7 @@
 		"start": "node index.js",
 		"dev": "nodemon index.js",
 		"dev-linux": "npm run start-redis && nodemon index.js",
+		"dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon index.js",
 		"test": "jest --watchAll",
 		"start-redis": "redis-server --daemonize yes"
 	},
@@ -14,6 +15,7 @@
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
+		"cross-env": "^7.0.3",
 		"eslint": "^7.28.0",
 		"eslint-config-google": "^0.14.0",
 		"jest": "^23.6.0",
