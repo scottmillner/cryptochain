@@ -4,6 +4,7 @@ class Transaction {
 	constructor(senderWallet, recepient, amount) {
 		this.id = new uuid.v1();
 		this.outputMap = this.createOutputMap(senderWallet, recepient, amount);
+		this.input = this.createInput(senderWallet, this.outputMap);
 	}
 
 	createOutputMap(senderWallet, recepient, amount) {
@@ -12,6 +13,15 @@ class Transaction {
 		outputMap[senderWallet.publicKey] = senderWallet.balance - amount;
 
 		return outputMap;
+	}
+
+	createInput(senderWallet, outputMap) {
+		return {
+			timestamp: Date.now(),
+			amount: senderWallet.balance,
+			address: senderWallet.publicKey,
+			signature: senderWallet.sign(outputMap),
+		};
 	}
 }
 
