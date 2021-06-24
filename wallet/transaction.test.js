@@ -5,7 +5,6 @@ const { verifySignature } = require('../util');
 describe('Transaction', () => {
 	// Arrange
 	let transaction, senderWallet, recepient, amount;
-
 	beforeEach(() => {
 		senderWallet = new Wallet();
 		recepient = 'recepient-public-key';
@@ -63,6 +62,7 @@ describe('Transaction', () => {
 	});
 
 	describe('validTransaction()', () => {
+		// Arrange
 		let errorMock;
 
 		beforeEach(() => {
@@ -99,6 +99,43 @@ describe('Transaction', () => {
 					expect(errorMock).toHaveBeenCalled();
 				});
 			});
+		});
+	});
+
+	describe('update()', () => {
+		// Arrange
+		let originalSignature, originalSenderOutput, nextRecipient, nextAmount;
+		beforeEach(() => {
+			originalSignature = transaction.input.signature;
+			originalSenderOutput = transaction.outputMap[senderWallet.publicKey];
+			nextRecipient = 'next-recipient';
+			nextAmount = 50;
+
+			// Act
+			transaction.update(senderWallet, nextRecipient, nextAmount);
+		});
+
+		it('outputs the amount to the next recipient', () => {
+			// Assert
+			expect(transaction.outputMap[nextRecipient]).toEqual(nextAmount);
+		});
+
+		it('subtracts the amount from the original sender output amount', () => {
+			// Assert
+			expect(transaction.outputMap[senderWallet.publicKey]).toEqual(originalSenderOutput - nextAmount);
+		});
+
+		it('maintains a total output that matches the input amount', () => {
+			// Arrange
+			const totalOutputAmount = Object.values(transaction.outputMap).reduce((total, outputAmount) => total + outputAmount);
+
+			// Assert
+			expect(totalOutputAmount).toEqual(transaction.input.amount);
+		});
+
+		it('re-signs the transaction', () => {
+			// Assert
+			expect(transaction.input.signature).not.toEqual(originalSignature);
 		});
 	});
 });
