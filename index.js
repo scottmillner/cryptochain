@@ -31,10 +31,20 @@ app.post('/api/block', (req, res) => {
 
 app.post('/api/transaction', (req, res) => {
 	const { amount, recipient } = req.body;
-	const transaction = wallet.createTransaction(recipient, amount);
-	transactionPool.setTransaction(transaction);
+	let transaction = transactionPool.existingTransaction(wallet.publicKey);
 
-	res.json(transaction);
+	try {
+		if (transaction) {
+			transaction.update(wallet, recipient, amount);
+		} else {
+			transaction = wallet.createTransaction(recipient, amount);
+		}
+	} catch (error) {
+		return res.status(400).json({ type: 'error', message: error.message });
+	}
+
+	transactionPool.setTransaction(transaction);
+	res.json({ type: 'success', transaction });
 });
 
 const syncChains = () => {
