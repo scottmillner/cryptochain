@@ -47,6 +47,10 @@ app.post('/api/transaction', (req, res) => {
 	res.json({ type: 'success', transaction });
 });
 
+app.get('/api/transaction-pool-map', (req, res) => {
+	res.json(transactionPool.transactionMap);
+});
+
 const syncChains = () => {
 	axios
 		.get(`${ROOT_NODE_ADDRESS}/api/blocks`)

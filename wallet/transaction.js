@@ -3,7 +3,7 @@ const { verifySignature } = require('../util');
 
 class Transaction {
 	constructor(senderWallet, recepient, amount) {
-		this.id = new uuid.v1();
+		this.id = uuid.v1();
 		this.outputMap = this.createOutputMap(senderWallet, recepient, amount);
 		this.input = this.createInput(senderWallet, this.outputMap);
 	}
