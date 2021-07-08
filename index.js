@@ -5,6 +5,7 @@ const Blockchain = require('./blockchain');
 const PubSub = require('./app/pubsub');
 const TransactionPool = require('./wallet/transaction-pool');
 const Wallet = require('./wallet');
+const { request } = require('express');
 
 const app = express();
 app.use(bodyParser.json());
@@ -52,7 +53,8 @@ app.get('/api/transaction-pool-map', (req, res) => {
 	res.json(transactionPool.transactionMap);
 });
 
-const syncChains = () => {
+const syncWithRootState = () => {
+	// sync with root blockchain
 	axios
 		.get(`${ROOT_NODE_ADDRESS}/api/blocks`)
 		.then((response) => {
@@ -65,6 +67,20 @@ const syncChains = () => {
 		.catch((error) => {
 			console.error(error);
 		});
+
+	// sync with root transaction pool map
+	axios
+		.get(`${ROOT_NODE_ADDRESS}/api/transaction-pool-map`)
+		.then((response) => {
+			if (response.status === 200) {
+				const rootTransactionPoolMap = response.data;
+				console.log('replace transaction pool map on a sync with: ', rootTransactionPoolMap);
+				transactionPool.setMap(rootTransactionPoolMap);
+			}
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 };
 
 let PEER_PORT;
@@ -76,5 +92,5 @@ if (process.env.GENERATE_PEER_PORT === 'true') {
 const PORT = PEER_PORT || DEFAULT_PORT;
 app.listen(PORT, () => {
 	console.log(`listening at localhost:${PORT}`);
-	if (PORT !== DEFAULT_PORT) syncChains();
+	if (PORT !== DEFAULT_PORT) syncWithRootState();
 });
