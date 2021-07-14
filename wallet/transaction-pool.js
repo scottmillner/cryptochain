@@ -20,6 +20,20 @@ class TransactionPool {
 	validTransactions() {
 		return Object.values(this.transactionMap).filter((transaction) => Transaction.validTransaction(transaction));
 	}
+
+	clear() {
+		this.transactionMap = {};
+	}
+
+	clearBlockchainTransactions(chain) {
+		chain.forEach((block, index) => {
+			if (index > 0) {
+				for (let transaction of block.data) {
+					if (this.transactionMap[transaction.id]) delete this.transactionMap[transaction.id];
+				}
+			}
+		});
+	}
 }
 
 module.exports = TransactionPool;
