@@ -132,6 +132,51 @@ describe('Wallet', () => {
 				// Assert
 				expect(expectedBalance).toEqual(actualBalance);
 			});
+
+			describe('and the wallet has made a transaction', () => {
+				// Arrange
+				let recentTransaction;
+
+				beforeEach(() => {
+					recentTransaction = wallet.createTransaction('foo-address', 30);
+					blockchain.addBlock([recentTransaction]);
+				});
+
+				it('returns the output amount of the recent transaction', () => {
+					// Act
+					const expectedBalance = Wallet.calculateBalance(blockchain.chain, wallet.publicKey);
+					const actualBalance = recentTransaction.outputMap[wallet.publicKey];
+
+					// Assert
+					expect(expectedBalance).toEqual(actualBalance);
+				});
+
+				describe('and there are outputs next to and after the recent transaction', () => {
+					// Arrange
+					let sameBlockTransaction, nextBlockTransaction;
+
+					beforeEach(() => {
+						// Act
+						recentTransaction = wallet.createTransaction('later-foo-address', 60);
+						sameBlockTransaction = Transaction.rewardTransaction(wallet);
+						blockchain.addBlock([recentTransaction, sameBlockTransaction]);
+
+						nextBlockTransaction = new Wallet().createTransaction(wallet.publicKey, 75);
+						blockchain.addBlock([nextBlockTransaction]);
+					});
+
+					it('includes the ouput amounts in the returned balance', () => {
+						// Assert
+						const expectedBalance = Wallet.calculateBalance(blockchain.chain, wallet.publicKey);
+						const actualBalance =
+							recentTransaction.outputMap[wallet.publicKey] +
+							sameBlockTransaction.outputMap[wallet.publicKey] +
+							nextBlockTransaction.outputMap[wallet.publicKey];
+
+						expect(expectedBalance).toEqual(actualBalance);
+					});
+				});
+			});
 		});
 	});
 });
